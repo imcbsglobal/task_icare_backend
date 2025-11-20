@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -----------------------------
 SECRET_KEY = 'django-insecure-0t@zpkf9!^%&ok8mhrrm5vh9r%pf&#@m#g^iv!_4)=!4w0dp=!'
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*','www.icare.imcbs.com','icare.imcbs.com']
 
 # -----------------------------
 # Installed Apps
@@ -80,9 +80,9 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'icare_db',
+        'NAME': 'task_icare_db',
         'USER': 'postgres',
-        'PASSWORD': '12345',
+        'PASSWORD': 'info@imc',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -143,6 +143,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
+    "https://icare.imcbs.com/"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
