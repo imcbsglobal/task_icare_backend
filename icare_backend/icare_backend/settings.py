@@ -4,7 +4,10 @@ Django settings for icare_backend project.
 
 from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
+load_dotenv()  # Load environment variables from .env file
 # -----------------------------
 # Base Directory
 # -----------------------------
@@ -27,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
 
     # Local App
     'icare_app',
@@ -118,7 +122,55 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# -----------------------------
+
+# Cloudflare R2 Storage Configuration
+CLOUDFLARE_R2_ENABLED = os.getenv('CLOUDFLARE_R2_ENABLED', 'false').lower() == 'true'
+
+if CLOUDFLARE_R2_ENABLED:
+    # R2 Credentials
+    AWS_ACCESS_KEY_ID = os.getenv('CLOUDFLARE_R2_ACCESS_KEY')
+    AWS_SECRET_ACCESS_KEY = os.getenv('CLOUDFLARE_R2_SECRET_KEY')
+    
+    # R2 Configuration
+    CLOUDFLARE_R2_BUCKET_NAME = os.getenv('CLOUDFLARE_R2_BUCKET')
+    CLOUDFLARE_R2_ENDPOINT = os.getenv('CLOUDFLARE_R2_BUCKET_ENDPOINT')
+    CLOUDFLARE_R2_PUBLIC_URL = os.getenv('CLOUDFLARE_R2_PUBLIC_URL')
+    CLOUDFLARE_R2_ACCOUNT_ID = os.getenv('CLOUDFLARE_R2_ACCOUNT_ID', '')
+
+    
+    # Django 5.x STORAGES setting (replaces DEFAULT_FILE_STORAGE)
+    STORAGES = {
+        "default": {
+            "BACKEND": "icare_backend.storage_backends.R2MediaStorage",
+
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+    
+    # Media files URL
+    if CLOUDFLARE_R2_PUBLIC_URL:
+        MEDIA_URL = f'{CLOUDFLARE_R2_PUBLIC_URL}/media/'
+        # STATIC_URL = f'{CLOUDFLARE_R2_PUBLIC_URL}/static/'
+    else:
+        MEDIA_URL = f'{CLOUDFLARE_R2_ENDPOINT}/{CLOUDFLARE_R2_BUCKET_NAME}/media/'
+else:
+    # Local storage fallback
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+    MEDIA_URL = '/media/'
+
+
+
+
+# ----------------------------
 # Default Primary Key Field Type
 # -----------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
